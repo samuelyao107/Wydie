@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solving Linear Programming Problems with GNNs</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background-color: #0078d7;
+      color: white;
+      padding: 20px 15px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 600;
+    }
+    nav {
+      background: #e0e0e0;
+      padding: 10px 15px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid #ccc;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li {
+      cursor: pointer;
+      padding: 5px 10px;
+      background: #0078d7;
+      color: white;
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+    nav ul li:hover {
+      background: #005ea1;
+    }
+    main {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 0 15px 50px 15px;
+      background: white;
+      box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+      border-radius: 8px;
+    }
+    section {
+      margin-bottom: 40px;
+    }
+    h2 {
+      color: #0078d7;
+      border-bottom: 2px solid #0078d7;
+      padding-bottom: 6px;
+      margin-bottom: 15px;
+    }
+    pre {
+      background: #efefef;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: Consolas, monospace;
+      font-size: 0.95rem;
+      color: #c7254e;
+      background-color: #f9f2f4;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Solving Linear Programming Problems with Graph Neural Networks</h1>
+</header>
+
+<nav>
+  <ul id="toc">
+    <!-- JavaScript will inject sections here -->
+  </ul>
+</nav>
+
+<main id="content">
+  <!-- Sections will be injected here -->
+</main>
+
+<script>
+  const sectionsData = [
+    {
+      title: "Introduction: Why Optimization Matters",
+      content: `
+        <p>Every day, companies in logistics, finance, and energy face complex decisions:</p>
+        <ul>
+          <li>How to minimize costs?</li>
+          <li>How to allocate resources efficiently?</li>
+          <li>How to react quickly to new challenges?</li>
+        </ul>
+        <p>To answer these questions, they often use a mathematical method called <strong>Linear Programming (LP)</strong>.</p>
+        <p>However, when problems get bigger and more complex, traditional methods become too slow and rigid.</p>
+        <p>That’s why we propose a new solution using <strong>Graph Neural Networks (GNNs)</strong> — an AI approach that can learn and adapt.</p>
+      `
+    },
+    {
+      title: "What is Linear Programming (LP)?",
+      content: `
+        <p>A Linear Programming problem aims to find the best solution (maximize or minimize a value) under certain constraints.</p>
+        <p><strong>Mathematically, it looks like this:</strong></p>
+        <pre><code>Maximize (or Minimize) c^T x
+Subject to: A x ≤ b
+x ≥ 0
+</code></pre>
+        <p>Where:</p>
+        <ul>
+          <li><code>x</code> = decision variables (what we want to find),</li>
+          <li><code>c</code> = objective coefficients (how variables affect the result),</li>
+          <li><code>A</code> = matrix of constraints (relationships between variables),</li>
+          <li><code>b</code> = constraint limits.</li>
+        </ul>
+        <p>Example: A company wants to produce two products, but has limited resources (materials, time). LP helps find how much of each product to make.</p>
+      `
+    },
+    {
+      title: "The Problem with Traditional Solvers",
+      content: `
+        <p>Classic methods like Simplex or Interior Point Methods are powerful, but they have limits:</p>
+        <ul>
+          <li>Slow on large problems (big data, complex constraints),</li>
+          <li>No learning ability (they start from scratch every time),</li>
+          <li>Not flexible to new problem types.</li>
+        </ul>
+        <p>In situations where speed and adaptability are critical, we need smarter tools.</p>
+      `
+    },
+    {
+      title: "Why Use Graph Neural Networks (GNNs)?",
+      content: `
+        <p>An LP problem can be represented as a bipartite graph:</p>
+        <ul>
+          <li>On one side: Variable nodes (decision variables),</li>
+          <li>On the other: Constraint nodes (limitations),</li>
+          <li>Edges represent coefficients from matrix <code>A</code> (connections between variables and constraints).</li>
+        </ul>
+        <p>This is a natural fit for Graph Neural Networks, which are designed to process graph-structured data.</p>
+        <p><strong>Advantages of GNNs:</strong></p>
+        <ul>
+          <li>Capture complex relationships,</li>
+          <li>Learn from multiple problem instances,</li>
+          <li>Provide fast approximations,</li>
+          <li>Generalize to new problems without retraining from scratch.</li>
+        </ul>
+      `
+    },
+    {
+      title: "Methodology: From LP to GNN",
+      content: `
+        <p><strong>1. Graph Construction</strong></p>
+        <ul>
+          <li>Node features:
+            <ul>
+              <li>Variables: coefficients <code>c_i</code>, bounds.</li>
+              <li>Constraints: right-hand side values <code>b_j</code>.</li>
+            </ul>
+          </li>
+          <li>Edge features:
+            <ul>
+              <li>Coefficients <code>A_ij</code> linking variables to constraints.</li>
+            </ul>
+          </li>
+        </ul>
+        <p><strong>2. GNN Architecture</strong></p>
+        <ul>
+          <li>Message Passing: Variables and constraints exchange information through edges.</li>
+          <li>Aggregation: Nodes update their state (embedding).</li>
+          <li>Readout Layer: Predicts outputs like feasibility, boundedness, or approximate solutions.</li>
+        </ul>
+        <p><strong>3. Training & Objectives</strong></p>
+        <ul>
+          <li>Train on synthetic LP problems with known solutions.</li>
+          <li>Tasks:
+            <ul>
+              <li>Feasibility prediction (Is there a solution?),</li>
+              <li>Boundedness prediction (Is the solution space finite?),</li>
+              <li>Approximate solution estimation.</li>
+            </ul>
+          </li>
+          <li>Loss functions: binary cross-entropy, regression loss.</li>
+          <li>Metrics: accuracy, F1-score, mean absolute error (MAE).</li>
+        </ul>
+      `
+    },
+    {
+      title: "Results & Benefits",
+      content: `
+        <p>Our experiments show:</p>
+        <ul>
+          <li>&gt;90% accuracy in predicting feasibility and boundedness,</li>
+          <li>Much faster inference than traditional LP solvers,</li>
+          <li>Good generalization to new types of LP problems.</li>
+        </ul>
+        <p><strong>Limitation:</strong> The solutions are approximations, but precise enough for fast decision-making.</p>
+      `
+    },
+    {
+      title: "Industrial Applications",
+      content: `
+        <p>Where can this help?</p>
+        <ul>
+          <li>Logistics: Quickly validate routing plans.</li>
+          <li>Finance: Estimate portfolio configurations.</li>
+          <li>Energy: Optimize resource distribution in real time.</li>
+        </ul>
+        <p>This approach is perfect for companies needing:</p>
+        <ul>
+          <li>Fast answers,</li>
+          <li>Scalable optimization,</li>
+          <li>Reduced computational costs.</li>
+        </ul>
+      `
+    },
+    {
+      title: "Future Perspectives",
+      content: `
+        <p>Next steps for this project:</p>
+        <ul>
+          <li>Extend to Mixed-Integer Linear Programming (MILP),</li>
+          <li>Apply to real-world industrial datasets,</li>
+          <li>Build a web demo platform for users to test.</li>
+        </ul>
+      `
+    },
+    {
+      title: "Conclusion",
+      content: `
+        <p>Using Graph Neural Networks to solve Linear Programming problems is a promising innovation:</p>
+        <ul>
+          <li>It brings together Optimization and Artificial Intelligence.</li>
+          <li>It offers faster, smarter, more flexible solutions.</li>
+          <li>While not replacing classic solvers, it complements them where speed and adaptability matter.</li>
+        </ul>
+        <p>This project was developed as part of the IMT Atlantique Machine Learning Track, aiming to bridge research and industry.</p>
+      `
+    },
+    {
+      title: "Want to Learn More?",
+      content: `
+        <p>Interested in trying it out or collaborating?</p>
+        <p><strong>➡️ Contact us to explore further!</strong></p>
+      `
+    }
+  ];
+
+  const toc = document.getElementById("toc");
+  const content = document.getElementById("content");
+
+  // Populate nav and main content
+  sectionsData.forEach((section, index) => {
+    // Create TOC item
+    const li = document.createElement("li");
+    li.textContent = section.title;
+    li.style.userSelect = "none";
+    li.addEventListener("click", () => {
+      document.getElementById(`section-${index}`).scrollIntoView({behavior: "smooth"});
+    });
+    toc.appendChild(li);
+
+    // Create content section
+    const sec = document.createElement("section");
+    sec.id = `section-${index}`;
+    const h2 = document.createElement("h2");
+    h2.textContent = section.title;
+    sec.appendChild(h2);
+
+    const div = document.createElement("div");
+    div.innerHTML = section.content;
+    sec.appendChild(div);
+
+    content.appendChild(sec);
+  });
+</script>
+
+</body>
+</html>
